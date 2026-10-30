@@ -107,7 +107,7 @@ const ordersFirebaseConfig = {
 };
 const ordersApp = initializeApp(ordersFirebaseConfig, 'culto-orders');
 const ordersDb = getFirestore(ordersApp);
-const cupPrices = { minibig: 600, big: 700, bigbig: 1200 };
+const cupPrices = { minibig: 900, big: 1000, bigbig: 1300 };
 const cupLabels = { minibig: 'MiniBig', big: 'Big', bigbig: 'BigBig' };
 const cupQuantities = { minibig: 0, big: 0, bigbig: 0 };
 const brl = cents => (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
