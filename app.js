@@ -111,6 +111,29 @@ const cupPrices = { minibig: 900, big: 1000, bigbig: 1300 };
 const cupLabels = { minibig: 'MiniBig', big: 'Big', bigbig: 'BigBig' };
 const cupQuantities = { minibig: 0, big: 0, bigbig: 0 };
 const brl = cents => (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+// Monta a mensagem organizada que será enviada pelo WhatsApp.
+function buildWhatsAppMessage({ name, items, notes, total }) {
+  const lines = [];
+  lines.push('Olá! Gostaria de fazer um pedido no Culto Salgados.');
+  lines.push('');
+  lines.push(`Cliente: ${name}`);
+  lines.push('');
+  lines.push('Itens:');
+  for (const item of items) {
+    lines.push(`- ${item.size} × ${item.quantity} — ${brl(item.subtotalCents)}`);
+  }
+  lines.push('');
+  lines.push(`Total: ${brl(total.cents)}`);
+  if (notes) {
+    lines.push('');
+    lines.push(`Observações: ${notes}`);
+  }
+  lines.push('');
+  lines.push('Pagamento na retirada.');
+  return lines.join('\n');
+}
+
 function updateOrderTotal() {
   let cups = 0, cents = 0;
   for (const key of Object.keys(cupQuantities)) {
@@ -136,6 +159,12 @@ document.querySelector('#order-form').addEventListener('submit', async event => 
   if (!name) { feedback.textContent = 'Informe seu nome para continuar.'; feedback.className = 'order-feedback error'; return; }
   if (total.cups < 1) { feedback.textContent = 'Escolha pelo menos um copo antes de enviar.'; feedback.className = 'order-feedback error'; return; }
   const items = Object.keys(cupQuantities).filter(key => cupQuantities[key] > 0).map(key => ({ size: cupLabels[key], quantity: cupQuantities[key], unitPriceCents: cupPrices[key], subtotalCents: cupPrices[key] * cupQuantities[key] }));
+
+  // Abre o WhatsApp imediatamente (resposta direta ao clique, evita bloqueio de pop-up).
+  const whatsappMessage = buildWhatsAppMessage({ name, items, notes, total });
+  const whatsappUrl = `https://wa.me/4298182778?text=${encodeURIComponent(whatsappMessage)}`;
+  window.open(whatsappUrl, '_blank');
+
   submit.disabled = true; submit.textContent = 'Enviando pedido…';
   feedback.textContent = 'Salvando seu pedido…'; feedback.className = 'order-feedback';
   try {
@@ -145,6 +174,7 @@ document.querySelector('#order-form').addEventListener('submit', async event => 
     });
     feedback.textContent = `Pedido enviado com sucesso! Número do pedido: ${doc.id.slice(-6).toUpperCase()}. O pagamento será feito na retirada.`;
     feedback.className = 'order-feedback success';
+
     document.querySelector('#order-form').reset();
     Object.keys(cupQuantities).forEach(key => cupQuantities[key] = 0);
     updateOrderTotal();
