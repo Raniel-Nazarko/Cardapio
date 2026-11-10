@@ -162,7 +162,7 @@ document.querySelector('#order-form').addEventListener('submit', async event => 
 
   // Abre o WhatsApp imediatamente (resposta direta ao clique, evita bloqueio de pop-up).
   const whatsappMessage = buildWhatsAppMessage({ name, items, notes, total });
-  const whatsappUrl = `https://wa.me/4298182778?text=${encodeURIComponent(whatsappMessage)}`;
+  const whatsappUrl = `https://wa.me/554298182778?text=${encodeURIComponent(whatsappMessage)}`;
   window.open(whatsappUrl, '_blank');
 
   submit.disabled = true; submit.textContent = 'Enviando pedido…';
